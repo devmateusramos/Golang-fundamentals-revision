@@ -3,9 +3,9 @@ package main
 import "fmt"
 
 type usuario struct {
-	nome  string
-	idade uint8
-	endereco
+	nome     string
+	idade    uint8
+	endereco endereco
 }
 
 type endereco struct {
@@ -30,4 +30,5 @@ func main() {
 	endereco1 := endereco{"Palmas", 21}
 	u4 := usuario{"Mateus", 22, endereco1}
 	fmt.Println(u4)
+	fmt.Println("teste herança: ", u2.endereco.numero)
 }
