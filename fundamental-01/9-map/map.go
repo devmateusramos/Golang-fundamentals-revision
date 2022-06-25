@@ -18,6 +18,7 @@ func main() {
 	}
 
 	fmt.Println(usuario2)
+	fmt.Println(usuario)
 	delete(usuario, "nome")
 	fmt.Println(usuario)
 }
