@@ -22,12 +22,17 @@ func main() {
 	// Só em execução
 	// A maneira de tratar isso é essa abaixo, lidando com se ele está
 	// aberto ou fechado, aberto ainda vai enviar/receber dados, fechado não
-	for {
-		mensagem2, aberto := <-canal
-		if !aberto {
-			break // uma maneira de sair do loop infinito em for é chamando o
-			// break
-		}
+	//for {
+	//	mensagem2, aberto := <-canal
+	//	if !aberto {
+	//		break // uma maneira de sair do loop infinito em for é chamando o
+	//		// break
+	//	}
+	//	fmt.Println(mensagem2)
+	//}
+	// Maneira mais legal de fazer isso
+	for mensagem2 := range canal { // Assim que identificar q canal fechou
+		// Ele para de esperar valores
 		fmt.Println(mensagem2)
 	}
 	fmt.Println("Fim do programa")
