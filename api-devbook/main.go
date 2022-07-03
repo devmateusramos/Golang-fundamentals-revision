@@ -1,7 +1,7 @@
 package main
 
 import (
-	router "api-devbook/src"
+	"api-devbook/src/router"
 	"fmt"
 	"log"
 	"net/http"
