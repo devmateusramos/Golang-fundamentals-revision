@@ -26,7 +26,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = usuario.Preparar(); err != nil {
+	if err = usuario.Preparar("cadastro"); err != nil {
 		respostas.Err(w, http.StatusBadRequest, err)
 		return
 	}
@@ -36,6 +36,7 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 		respostas.Err(w, http.StatusInternalServerError, err)
 		return
 	}
+	defer db.Close()
 
 	repositorio := repositories.NovoRepositorioDeUsuarios(db)
 	usuario.ID, err = repositorio.Criar(usuario)
@@ -94,6 +95,46 @@ func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
 }
 
 func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
+	parametros := mux.Vars(r)
+
+	usuarioID, err := strconv.ParseUint(parametros["usuarioId"], 10, 64)
+	if err != nil {
+		respostas.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	corpoRequisicao, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		respostas.Err(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var usuario models.Usuario
+	if err := json.Unmarshal(corpoRequisicao, &usuario); err != nil {
+		respostas.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err := usuario.Preparar("edicao"); err != nil {
+		respostas.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Conectar()
+	if err != nil {
+		respostas.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repositorio := repositories.NovoRepositorioDeUsuarios(db)
+
+	if err = repositorio.Atualizar(usuarioID, usuario); err != nil {
+		respostas.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	respostas.JSON(w, http.StatusNoContent, nil)
 
 }
 
