@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"api-devbook/src/autenticacao"
 	"api-devbook/src/database"
 	"api-devbook/src/models"
 	"api-devbook/src/repositories"
@@ -40,5 +41,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("Está correto considere-se autenticado!"))
+	token, _ := autenticacao.CriarToken(usuarioSalvoNoBanco.ID)
+	w.Write([]byte(token))
 }
