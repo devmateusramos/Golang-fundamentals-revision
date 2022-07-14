@@ -25,6 +25,6 @@ func main() {
 	config.Carregar()
 
 	routes := router.Gerar()
-	fmt.Printf("Server is running on port %d", config.Porta)
+	fmt.Printf("Server is running on port %d \n", config.Porta)
 	log.Fatalln(http.ListenAndServe(fmt.Sprintf(":%d", config.Porta), routes))
 }

@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"api-devbook/src/autenticacao"
 	"api-devbook/src/database"
 	"api-devbook/src/models"
 	"api-devbook/src/repositories"
 	"api-devbook/src/respostas"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -100,6 +103,19 @@ func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 	usuarioID, err := strconv.ParseUint(parametros["usuarioId"], 10, 64)
 	if err != nil {
 		respostas.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	usuarioIDNoToken, err := autenticacao.ExtrairUsuarioID(r)
+	if err != nil {
+		respostas.Err(w, http.StatusUnauthorized, err)
+		return
+	}
+	fmt.Println(usuarioIDNoToken)
+
+	if usuarioID != usuarioIDNoToken {
+		respostas.Err(w, http.StatusForbidden,
+			errors.New("Não é possível atualizar um usuário que não é o seu"))
 		return
 	}
 
