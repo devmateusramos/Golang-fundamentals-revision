@@ -162,6 +162,16 @@ func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	usuarioIDNoToken, err := autenticacao.ExtrairUsuarioID(r)
+	if err != nil {
+		respostas.Err(w, http.StatusUnauthorized, err)
+	}
+
+	if usuarioID != usuarioIDNoToken {
+		respostas.Err(w, http.StatusForbidden, errors.New("Não é possível deletar um usuário que não seja o seu"))
+		return
+	}
+
 	db, err := database.Conectar()
 	if err != nil {
 		respostas.Err(w, http.StatusInternalServerError, err)
@@ -172,6 +182,42 @@ func DeletarUsuario(w http.ResponseWriter, r *http.Request) {
 	repositorio := repositories.NovoRepositorioDeUsuarios(db)
 
 	if err = repositorio.Deletar(usuarioID); err != nil {
+		respostas.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	respostas.JSON(w, http.StatusNoContent, nil)
+}
+
+// SeguirUsuario permite que um usuário siga outro
+func SeguirUsuario(w http.ResponseWriter, r *http.Request) {
+	seguidorID, err := autenticacao.ExtrairUsuarioID(r)
+	if err != nil {
+		respostas.Err(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	parametros := mux.Vars(r)
+	usuarioID, err := strconv.ParseUint(parametros["usuarioId"], 10, 64)
+	if err != nil {
+		respostas.Err(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if seguidorID == usuarioID {
+		respostas.Err(w, http.StatusForbidden, errors.New("Não é possível seguir você mesmo"))
+		return
+	}
+
+	db, err := database.Conectar()
+	if err != nil {
+		respostas.Err(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repositorio := repositories.NovoRepositorioDeUsuarios(db)
+	if err := repositorio.Seguir(usuarioID, seguidorID); err != nil {
 		respostas.Err(w, http.StatusInternalServerError, err)
 		return
 	}
